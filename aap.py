@@ -1,13 +1,26 @@
 import streamlit as st
 import pandas as pd
 
+try:
+    import openpyxl  # Verifica se o openpyxl está instalado
+except ImportError:
+    st.warning("Instalando openpyxl... (necessário para ler arquivos Excel)")
+    install("openpyxl")
+    import openpyxl  # Tenta importar novamente após instalação
+
 # ----------- Função de leitura de dados ----------- #
 @st.cache_data
 def carregar_dados():
-    df = pd.read_excel("dataset_rede_ancora.xlsx")
-    df.columns = [col.strip() for col in df.columns]  # Limpa espaços extras nos nomes das colunas
-    return df
-
+    try:
+        df = pd.read_excel("dataset_rede_ancora.xlsx")
+        df.columns = [col.strip() for col in df.columns]  # Limpa espaços extras nos nomes das colunas
+        return df
+    except FileNotFoundError:
+        st.error("Arquivo 'dataset_rede_ancora.xlsx' não encontrado!")
+        st.stop()
+    except Exception as e:
+        st.error(f"Erro ao carregar dados: {str(e)}")
+        st.stop()
 # ----------- Algoritmo QuickSort ----------- #
 def quicksort(df, coluna):
     if len(df) <= 1:
